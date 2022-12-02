@@ -22,16 +22,16 @@ int global_timestamp = 0;       //# of data access trials
 
 //this function is for extracting datas
 int retrieve_data(void *addr, char data_type) {
-    /*the initial value should be 1, because if the cache hit happens, 
-    then the variable will be change as 1 by check_cache_data_hit function*/
+    /*the initial value should be -1, because if the cache hit happens, 
+    then the variable will be change as the value of data by check_cache_data_hit function*/
     int value_returned = -1; /* accessed data */
 
     /* Invoke check_cache_data_hit() */
-    value_returned=check_cache_data_hit(addr,data_type);    //if cache_hit --> return 1, cache miss --> return -1
+    value_returned=check_cache_data_hit(addr,data_type);    //if cache_hit --> return the value of data, cache miss --> return -1
 
     /* In case of the cache miss event, access the main memory by invoking access_memory() */
-    /*If cache miss event happens, value_returned will be -1.
-    through the conditional statement, when a cache miss event occurs, value_returned is received through memory access. 
+    /*If cache miss event happens, value_returned will be -1 at first.
+    Through the conditional statement, when a cache miss event occurs, value_returned is received through memory access. 
     Furthermore, since a cache miss event has occurred, add count of num_cache_misses.*/
 
     if(value_returned ==-1){                            //when cache miss event occurs
@@ -71,7 +71,7 @@ int main(void) {                                        //start of main function
     fprintf(ofp,"%s\n","[Accessed Data]");              //print into file to fit the provided output format
     
     char str[50];                                       //
-    while (fgets(str, sizeof(str), ifp) != NULL ) {     //
+    while (fgets(str, sizeof(str), ifp) != NULL ) {     //read a string from the input file, and the save the string in str until the entire string has been read
         char adrstr[10];                                //
         int i=0;                                        //a variable to be used in the loop statement is set into 0 in advance
         for(;i<15;i++){                                 //
