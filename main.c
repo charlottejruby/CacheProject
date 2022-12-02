@@ -68,7 +68,7 @@ int main(void) {                                        //start of main function
     
     /* Fill out here by invoking retrieve_data() */
     
-    fprintf(ofp,"%s\n","[Accessed Data]");              //file print to fit the provided output format
+    fprintf(ofp,"%s\n","[Accessed Data]");              //print into file to fit the provided output format
     
     char str[50];                                       //
     while (fgets(str, sizeof(str), ifp) != NULL ) {     //
@@ -86,25 +86,26 @@ int main(void) {                                        //start of main function
                 break;
             }
         }
-        fprintf(ofp,"%-4s\t%c\t",adrstr,access_type);
-        if(access_type=='b')num_bytes+=1;
-        else if(access_type=='h')num_bytes+=2;
-        else {num_bytes+=4;}
-        int val=retrieve_data(adrstr,access_type);
-        fprintf(ofp,"0x%x\n",val); //문자열 입력
-        
+        fprintf(ofp,"%-4s\t%c\t",adrstr,access_type);   //file print to fit the provided output format
+        if(access_type=='b')num_bytes+=1;               //if access_type is byte, add 1 in num_bytes since, a byte is one byte
+        else if(access_type=='h')num_bytes+=2;          //if access_type is halfword, add 2 in num_bytes since, a halfword is two bytes
+        else {num_bytes+=4;}                            //else means that the access_type is word, add 4, since a word is fout bytes
+        int val=retrieve_data(adrstr,access_type);      //the value obtained through memory or cache access is returned through the retrieve_data function, and it is put into a variable nameed val to print in output file
+        fprintf(ofp,"0x%x\n",val);                      //write a data obtained through memory or cache access to the output file, according to the format (0x and hexadecimal expression)
     }
     
+    /*In the calculation method of num_access_cycle, data obtained through cache access is obtained only through cache access cycle, and data obtained through memory, memory access is perfomed after the cache access.
+    The number of num_cache_misses must be multiplied by (memory access cycle + cache access cycle), and num_cache_hits should be multiplied by cache access cycle.*/
     num_access_cycles=num_cache_misses*(CACHE_ACCESS_CYCLE+MEMORY_ACCESS_CYCLE)+num_cache_hits*CACHE_ACCESS_CYCLE;
     
-    fprintf(ofp,"%s\n","-----------------------------------------");
-    if(DEFAULT_CACHE_ASSOC ==1)fprintf(ofp,"%s","[Direct mapped cache performance]\n");
-    else if(DEFAULT_CACHE_ASSOC ==2)fprintf(ofp,"%s","[2-way set associative cache performance]\n");
-    else {fprintf(ofp,"%s","[Fully associative cache performance]\n");}
+    fprintf(ofp,"%s\n","-----------------------------------------");    //print into file to fit the provided output format
+    if(DEFAULT_CACHE_ASSOC ==1)fprintf(ofp,"%s","[Direct mapped cache performance]\n"); //If cache associativity is 1, the sentence is printed according to the provided output format.
+    else if(DEFAULT_CACHE_ASSOC ==2)fprintf(ofp,"%s","[2-way set associative cache performance]\n");    //If cache associativity is 2, the sentence is printed according to the provided output format.
+    else {fprintf(ofp,"%s","[Fully associative cache performance]\n");} //else case is for fully associative cache, so print the sentence according to the provided output format.
 
-    //
+    //The hit ratio must divide num_cache_hits by (num_cache_hits + num_cache_misses), and we set the result to be printed until two decimal point.
     fprintf(ofp,"Hit ratio = %.2f (%d/%d)\n",(double)((double)num_cache_hits/(double)(num_cache_hits+num_cache_misses)),num_cache_hits,num_cache_hits+num_cache_misses);
-    //
+    //For bandwidth, num_bytes should be divided by num_access_cycle, and this value is also printed until two decimal point.
     fprintf(ofp,"Bandwidth = %.2f (%d/%d)\n",(double)((double)num_bytes/(double)num_access_cycles),num_bytes,num_access_cycles);
     
 
@@ -112,7 +113,7 @@ int main(void) {                                        //start of main function
     fclose(ifp);                                        //close the input file
     fclose(ofp);                                        //close the output file
     
-    print_cache_entries();                              //
+    print_cache_entries();                              //print the final cache entries by invoking print_cache_entries()
     return 0;                                           //return 1 to indicate a normal termination
 }
 
