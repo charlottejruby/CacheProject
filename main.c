@@ -70,23 +70,25 @@ int main(void) {                                        //start of main function
     
     fprintf(ofp,"%s\n","[Accessed Data]");              //print into file to fit the provided output format
     
-    char str[50];                                       //
+    /*Separate the part representing the address and the part representing the access_type through a conditional statement and write it to the output file. 
+    To do this, we used the adr_str buffer and access_type variables.*/
+    char str[50];                                       //declare a string buffer, named str
     while (fgets(str, sizeof(str), ifp) != NULL ) {     //read a string from the input file, and the save the string in str until the entire string has been read
-        char adrstr[10];                                //
+        char adrstr[10];                                //declare a string buffer for storing addresses
         int i=0;                                        //a variable to be used in the loop statement is set into 0 in advance
         for(;i<15;i++){                                 //
-            if(str[i]=='\0'||str[i]==' '){adrstr[i]='\0';break;}    //
-            else{                                       //
-                adrstr[i]=str[i];                       //
+            if(str[i]=='\0'||str[i]==' '){adrstr[i]='\0';break;}    //if the character entered into the string buffer is '\0' or a blank, put '\0' in the address buffer at the end and exit the loop
+            else{                                       //If a general character that does not satisfy the condition of the above, 
+                adrstr[i]=str[i];                       //put the character of the string buffer into the address string buffer
             }
         }
-        for(;i<10;i++){
-            if(str[i]!=' '){
-                access_type=str[i];
-                break;
+        for(;i<10;i++){                                 //
+            if(str[i]!=' '){                            //condtion that the ' ' doesn't come in the string buffer, since to store access_type
+                access_type=str[i];                     //set the value in the string buffer as access_type(since the necessary part of the address was already entered into adrstr)
+                break;                                  //since the access type is one char, we can break immediately after receiving the input
             }
         }
-        fprintf(ofp,"%-4s\t%c\t",adrstr,access_type);   //file print to fit the provided output format
+        fprintf(ofp,"%-4s\t%c\t",adrstr,access_type);   //file print to fit the provided output format and print address and the access type in the output file
         if(access_type=='b')num_bytes+=1;               //if access_type is byte, add 1 in num_bytes since, a byte is one byte
         else if(access_type=='h')num_bytes+=2;          //if access_type is halfword, add 2 in num_bytes since, a halfword is two bytes
         else {num_bytes+=4;}                            //else means that the access_type is word, add 4, since a word is fout bytes
