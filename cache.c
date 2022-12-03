@@ -157,9 +157,11 @@ int find_entry_index_in_set(int cache_index) {
     }
     if(entry_index==-1){                                            //if there is no empty space, 'entry_index' is still '-1'
                                                                     //find entry with lowset timestamp because timestamp continuously increases
+            int min=100;                                                       
             for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){                 //for each entry in set
-                if(cache_array[cache_index][i].timestamp<entry_index){  //if timestamp of entry is lower than entry_index, 
+                if(cache_array[cache_index][i].timestamp<min){  //if timestamp of entry is lower than entry_index, 
                     entry_index=i;                                  //set entry_index to i
+                    min=cache_array[cache_index][i].timestamp;
                 }
             }
     }
