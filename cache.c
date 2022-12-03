@@ -195,57 +195,56 @@ int access_memory(void *addr, char type) {
                                                                         //char holds 1 byte. 1 byte holds two hexadecimal number because one hexadecimal number hold 4 bits
 
     for(int i=0;i<4;i++){                                               //store memorry_array[byteAdress] in data[0]~data[3]
-        data[i]=memoryData%(256);                                       //one hexadecimal number hold 4 bit. so 
-        memoryData/=256;
+                                                                        //since Little endian is used, LSB is stored first, at the lowest address.
+        data[i]=memoryData%(256);                                       //store LSB in 'data[i]' 
+                                                                        //since char store 2 hexadecimal number, use 16*16=256
+        memoryData/=256;                                                //erase least two bits
     }
 
-    memoryData=memory_array[byteAddress+1];
-
-    for(int i=4;i<8;i++){
-        data[i]=memoryData%256;
-        memoryData/=256;
+    memoryData=memory_array[byteAddress+1];                             //since cache store 2 words(8 byte) access memory of which adress is 'byteAddress+1'
+                                                                        //one word is stored in memoryData
+    for(int i=4;i<8;i++){                                               //store memorry_array[byteAdress] in data[4]~data[8]
+        data[i]=memoryData%256;                                         //store 2 least bits in 'data[i]'
+        memoryData/=256;                                                //erase least two bits
     }
 
-    int set=byteAddress%(CACHE_SET_SIZE) ;
-    int tag=byteAddress/(CACHE_SET_SIZE) ;
+    int set=byteAddress%(CACHE_SET_SIZE) ;                              //calculate set
+    int tag=byteAddress/(CACHE_SET_SIZE) ;                              //calculate tag
 
-    int index=find_entry_index_in_set(set);
-    cache_array[set][index].valid=1;
-    cache_array[set][index].tag=tag;
-    cache_array[set][index].timestamp=global_timestamp++;
-    for(int i=0;i<8;i++){
-        cache_array[set][index].data[i]=data[i];
-    }
+    int index=find_entry_index_in_set(set);                             //invoke find_entry_index_in_set() for copying to the cache
+    cache_array[set][index].valid=1;                                    //set valid bit 1 to indicate this array is used
+    cache_array[set][index].tag=tag;                                    //write caculated 'tag value to tag of cache
+    cache_array[set][index].timestamp=global_timestamp++;               //write timestamp and then add 1 to indicate the recent access time
+    for(int i=0;i<8;i++){                                               
+        cache_array[set][index].data[i]=data[i];                        //write 8bits of data in cache
+    }                                                                   
 
    
-    int size;
-    if(type=='b')size=1;
-    else if (type=='h')size=2;
-    else{ size=4; }
-    int startbyte=address%8;    //8도 뭘로 바꿔야됨
-    unsigned int val=0;
-    for(int j=startbyte+size-1;j>=startbyte;j--){
-        int v=cache_array[set][index].data[j];
-        if(v>=0)val=val*256+v;
-        else{
-            char outputData[10];
-            sprintf(outputData, "%x", cache_array[set][index].data[j]);
-            if(outputData[6]>='a'&&outputData[6]<='f')v=outputData[6]-'a'+10;
-            else{ v=outputData[6]-'0'; }
-            v*=16;
-            if(outputData[7]>='a'&&outputData[7]<='f')v=v+outputData[7]-'a'+10;
-            else{ v=v+outputData[7]-'0'; }
-            val=val*256+v;
+    int size;                                                           //a variable named size is used to distinguish bytes according to access types
+    if(type=='b')size=1;                                                //if the type is byte, the access type is one byte so the size is 1
+    else if (type=='h')size=2;                                          //if the type is halfword, the access type is two bytes so the size is 2
+    else{ size=4; }                                                     //else means that the wordk is the access type, so the size should be 4
+    int startbyte=address%DEFAULT_CACHE_BLOCK_SIZE_BYTE;                //Since the cache store two words(=8byte), accessed data start at 'address modulo 8' in cache 
+    unsigned int val=0;                                                 //set val zero
+    for(int j=startbyte+size-1;j>=startbyte;j--){                       //access data from 'startbyte' to 'startbyte+size-1'(reverse). subtract 1 because index start at 0
+        int v=cache_array[set][index].data[j];                          //get data from cache to varibale v
+        if(v>=0)val=val*256+v;                                          //if the data is larger or equal to 0 
+                                                                        //since data is a hexadecimal number, two digits must be shifted left, so multiply by the power of 16 then add
+        else{                                                           //else if the data is less than 0 (if first bit is '1', v is considered as negative number because of sign extension)
+            char outputData[10];                                        //set another string buffer
+                                                                        //if v<0, v is 8 bit data. necessary data is in 6th, 7th bit and others(0~5bits) are filled with 'f' by sign extension
+            sprintf(outputData, "%x", cache_array[set][index].data[j]); //store the data in the outputData buffer
+                                                                        //beacause data is stored as 'char', hexadecimal number A~F cannot recognized by 10~15
+            if(outputData[6]>='a'&&outputData[6]<='f')v=outputData[6]-'a'+10;   //if data is 'a~f', subtract ascii value of a.
+                                                                                //then 'a~f' become '0~5'. add 10 beacuse 'a' means '10' in hexadecimal
+            else{ v=outputData[6]-'0'; }                                //else means data is '0~9' in char. make it '0~9' in integer by subtracting ascii value of 'char zero'
+            v*=16;                                                      //since data is a hexadecimal number, so multiply by the power of 16
+            if(outputData[7]>='a'&&outputData[7]<='f')v=v+outputData[7]-'a'+10;     //change heximal number 'a~f' to Integer '10~15' 
+            else{ v=v+outputData[7]-'0'; }                              //change character '0~9' to integer '0~9'
+            val=val*256+v;                                              //since data is a hexadecimal number, two digits must be shifted left, so multiply by the power of 16 then add
         }
     }
     /* Return the accessed data with a suitable type */    
 
-    return val; //datatype생각해봐야함 지금은 걍 1words 리턴
+    return val;                                                         //return the value
 }
-
-/*
-
-5. 교수님이 쓰라고 정해준 변수 안쓴거 있나 보자
-
-학부때 죽었다 생각하고 교수가되어서 합창을 하라 -형준리ㅡ
-*/
