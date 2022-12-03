@@ -114,20 +114,23 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
             if(type=='b')size=1;                                    //if the type is byte, the access type is one byte so the size is 1
             else if (type=='h')size=2;                              //if the type is halfword, the access type is two bytes so the size is 2
             else{ size=4; }                                         //else means that the wordk is the access type, so the size should be 4
-            int startbyte=address%8;    //8도 뭘로 바꿔야됨             //8도 뭘로 바꿔??
-            unsigned int val=0;                                     //중복이라 다시 확인 부탁해 ㅠㅠ
-            for(int j=startbyte+size-1;j>=startbyte;j--){           //모르게써 ㅠㅠ
+            int startbyte=address%DEFAULT_CACHE_BLOCK_SIZE_BYTE;    //Since the cache store two words(=8byte), accessed data start at 'address modulo 8' in cache 
+            unsigned int val=0;                                     //set val zero
+            for(int j=startbyte+size-1;j>=startbyte;j--){           //access data from 'startbyte' to 'startbyte+size-1'(reverse). subtract 1 because index start at 0
                 int v=cache_array[set][i].data[j];                  //get data from cache to varibale v
-                if(v>=0)val=val*256+v;                              //if the data is larger or equal to 0
+                if(v>=0)val=val*256+v;                              //if the data is larger or equal to 0 
                                                                     //since data is a hexadecimal number, two digits must be shifted left, so multiply by the power of 16 then add
-                else{                                               //else if the data is less than 0
+                else{                                               //else if the data is less than 0 (if first bit is '1', v is considered as negative number because of sign extension)
                     char outputData[10];                            //set another string buffer
+                                                                    //if v<0, v is 8 bit data. necessary data is in 6th, 7th bit and others(0~5bits) are filled with 'f' by sign extension
                     sprintf(outputData, "%x", cache_array[set][i].data[j]); //store the data in the outputData buffer
-                    if(outputData[6]>='a'&&outputData[6]<='f')v=outputData[6]-'a'+10;   //
-                    else{ v=outputData[6]-'0'; }                    //
-                    v*=16;                                          //
-                    if(outputData[7]>='a'&&outputData[7]<='f')v=v+outputData[7]-'a'+10; //
-                    else{ v=v+outputData[7]-'0'; }                  //
+                                                                    //beacause data is stored as 'char', hexadecimal number A~F cannot recognized by 10~15.
+                    if(outputData[6]>='a'&&outputData[6]<='f')v=outputData[6]-'a'+10;   //if data is 'a~f', subtract ascii value of a.
+                                                                                        //then 'a~f' become '0~5'. add 10 beacuse 'a' means '10' in hexadecimal
+                    else{ v=outputData[6]-'0'; }                    //else means data is '0~9' in char. make it '0~9' in integer by subtracting ascii value of 'char zero'. 
+                    v*=16;                                          //since data is a hexadecimal number, so multiply by the power of 16
+                    if(outputData[7]>='a'&&outputData[7]<='f')v=v+outputData[7]-'a'+10; //change heximal number 'a~f' to Integer '10~15' 
+                    else{ v=v+outputData[7]-'0'; }                  //change character '0~9' to integer '0~9'
                     val=val*256+v;                                  //since data is a hexadecimal number, two digits must be shifted left, so multiply by the power of 16 then add
                 }
             }
@@ -172,38 +175,39 @@ int access_memory(void *addr, char type) {
 
     /* You need to invoke find_entry_index_in_set() for copying to the cache */
     
-    char buf[100];
-    sprintf(buf, "%s", (char*)addr);
-    
-    int address=0;
-    for(int i=0;i<10;i++){
-        if(buf[i]=='\0')break;
-        address=address*10+buf[i]-'0';
+    char buf[100];                                                      //set a string buffer
+    sprintf(buf, "%s", (char*)addr);                                    //store string of which adress is addr(parameter) 
+                                                                        //byte address in decimal number is store in 'buf' by character.
+    int address=0;                                                      //variable to store adress
+    for(int i=0;i<10;i++){                                              //add i for cycle
+        if(buf[i]=='\0')break;                                          //break if string 'buf' has null(if string is done)
+        address=address*10+buf[i]-'0';                                  //since address is a decimal number, multiply by 10. then add accessed data
+                                                                        //since buf[i] is character type, make integer type by subtracting ascii value of 'char zero'
     }
+                                                                        //now, Byte Adress is stored in 'address', integer variable
 
-
-    int Address=((int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE))*DEFAULT_CACHE_BLOCK_SIZE_BYTE/WORD_SIZE_BYTE;
-
-
+    int byteAddress=((int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE))*DEFAULT_CACHE_BLOCK_SIZE_BYTE/WORD_SIZE_BYTE;    
+                                                                        //calculate byte adress 
     
-    unsigned int memoryData=memory_array[Address];
+    unsigned int memoryData=memory_array[byteAddress];                  //access memory by calculated byte adress
+                                                                        //one word is stored in memoryData
+    char data[DEFAULT_CACHE_BLOCK_SIZE_BYTE];                           //string for data that has to store in cache
+                                                                        //char holds 1 byte. 1 byte holds two hexadecimal number because one hexadecimal number hold 4 bits
 
-    char data[DEFAULT_CACHE_BLOCK_SIZE_BYTE];
-
-    for(int i=0;i<4;i++){
-        data[i]=memoryData%(256);
+    for(int i=0;i<4;i++){                                               //store memorry_array[byteAdress] in data[0]~data[3]
+        data[i]=memoryData%(256);                                       //one hexadecimal number hold 4 bit. so 
         memoryData/=256;
     }
 
-    memoryData=memory_array[Address+1];
+    memoryData=memory_array[byteAddress+1];
 
     for(int i=4;i<8;i++){
         data[i]=memoryData%256;
         memoryData/=256;
     }
 
-    int set=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)%(CACHE_SET_SIZE) ;
-    int tag=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)/(CACHE_SET_SIZE) ;
+    int set=byteAddress%(CACHE_SET_SIZE) ;
+    int tag=byteAddress/(CACHE_SET_SIZE) ;
 
     int index=find_entry_index_in_set(set);
     cache_array[set][index].valid=1;

@@ -11,3 +11,6 @@
 [2-way set associative cache performance]
 Hit ratio = 0.00 (0/8)
 Bandwidth = 0.02 (17/808)
+
+
+
