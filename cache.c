@@ -99,7 +99,6 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
     }                                                               //since the buffer is a char type, '\0' is subtracted
 
 
-
     int val=-1;                                                     //val variable is the value to be returned by the check_cache_data_hit function
                                                                     //if the hit event did not occur, -1 should be returned, so the initial value is -1
 
@@ -107,7 +106,6 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
                                                                             //set of the address is the remainder of dividing the (address/cache block size) by the cache set size
     int tag=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)/(CACHE_SET_SIZE) ; //calculate the tag
                                                                             //tag of the address is the quotient of dividing the (address/cache block size) by the cache set size
-
     for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){                         //the number of times the loop is repeated depends on the cache associativity
         if(cache_array[set][i].tag == tag){                         //when tags are same(hit event occurs)
             int size;                                               //a variable named size is used to distinguish bytes according to access types
@@ -115,7 +113,7 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
             else if (type=='h')size=2;                              //if the type is halfword, the access type is two bytes so the size is 2
             else{ size=4; }                                         //else means that the wordk is the access type, so the size should be 4
             int startbyte=address%DEFAULT_CACHE_BLOCK_SIZE_BYTE;    //Since the cache store two words(=8byte), accessed data start at 'address modulo 8' in cache 
-            unsigned int val=0;                                     //set val zero
+            val=0;                                                  //set val zero
             for(int j=startbyte+size-1;j>=startbyte;j--){           //access data from 'startbyte' to 'startbyte+size-1'(reverse). subtract 1 because index start at 0
                 int v=cache_array[set][i].data[j];                  //get data from cache to varibale v
                 if(v>=0)val=val*256+v;                              //if the data is larger or equal to 0 
@@ -211,8 +209,8 @@ int access_memory(void *addr, char type) {
         memoryData/=256;                                                //erase least two bits
     }
 
-    int set=byteAddress%(CACHE_SET_SIZE) ;                              //calculate set
-    int tag=byteAddress/(CACHE_SET_SIZE) ;                              //calculate tag
+    int set=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)%(CACHE_SET_SIZE) ;                              //calculate set
+    int tag=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)/(CACHE_SET_SIZE) ;                              //calculate tag
 
     int index=find_entry_index_in_set(set);                             //invoke find_entry_index_in_set() for copying to the cache
     cache_array[set][index].valid=1;                                    //set valid bit 1 to indicate this array is used

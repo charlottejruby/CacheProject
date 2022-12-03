@@ -33,7 +33,6 @@ int retrieve_data(void *addr, char data_type) {
     /*If cache miss event happens, value_returned will be -1 at first.
     Through the conditional statement, when a cache miss event occurs, value_returned is received through memory access. 
     Furthermore, since a cache miss event has occurred, add count of num_cache_misses.*/
-
     if(value_returned ==-1){                            //when cache miss event occurs
         value_returned = access_memory(addr,data_type); //the memory is accessed through the function access_memory
         num_cache_misses++;                             //since, this conditional statement is for cache miss event, count the num_cache_misses by adding one by one

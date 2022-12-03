@@ -1,10 +1,13 @@
 [Accessed Data]
-3   	b	0x1
-68  	h	0xedcb
-4   	h	0xeddc
-48  	w	0xcdde3221
-69  	b	0xed
+334 	b	0x9a
+490 	h	0xab23
+329 	w	0x652389dc
+489 	h	0x2354
+338 	h	0x45ab
+279 	b	0x56
+148 	w	0x5689a976
+339 	b	0x45
 -----------------------------------------
-[Fully associative cache performance]
-Hit ratio = 0.00 (0/5)
-Bandwidth = 0.02 (10/505)
+[2-way set associative cache performance]
+Hit ratio = 0.25 (2/8)
+Bandwidth = 0.03 (17/608)
