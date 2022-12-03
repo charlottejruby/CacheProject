@@ -155,18 +155,18 @@ int find_entry_index_in_set(int cache_index) {
     }
     if(entry_index==-1){                                            //if there is no empty space, 'entry_index' is still '-1'
                                                                     //find entry with lowset timestamp because timestamp continuously increases
-            int min=100;                                                       
+            int min=100;                                            //variable to find minimum. initialized by big number to compare
             for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){                 //for each entry in set
-                if(cache_array[cache_index][i].timestamp<min){  //if timestamp of entry is lower than entry_index, 
+                if(cache_array[cache_index][i].timestamp<min){      //if timestamp of entry is lower than min,
                     entry_index=i;                                  //set entry_index to i
-                    min=cache_array[cache_index][i].timestamp;
+                    min=cache_array[cache_index][i].timestamp;      //change min to minimun timestamp so far
                 }
             }
     }
 
     /* Otherwise, search over all entries to find the least recently used entry by checking 'timestamp' */
 
-    return entry_index; 
+    return entry_index;                                             //return proper index to access_memory()
 }
 
 int access_memory(void *addr, char type) {
@@ -209,8 +209,8 @@ int access_memory(void *addr, char type) {
         memoryData/=256;                                                //erase least two bits
     }
 
-    int set=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)%(CACHE_SET_SIZE) ;                              //calculate set
-    int tag=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)/(CACHE_SET_SIZE) ;                              //calculate tag
+    int set=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)%(CACHE_SET_SIZE) ;   //calculate set
+    int tag=(int)(address/DEFAULT_CACHE_BLOCK_SIZE_BYTE)/(CACHE_SET_SIZE) ;   //calculate tag
 
     int index=find_entry_index_in_set(set);                             //invoke find_entry_index_in_set() for copying to the cache
     cache_array[set][index].valid=1;                                    //set valid bit 1 to indicate this array is used

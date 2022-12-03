@@ -82,7 +82,7 @@ int main(void) {                                        //start of main function
             }
         }
         for(;i<15;i++){                                 //
-            if(str[i]=='b'||str[i]=='h'||str[i]=='w'){  //condtion that the ' ' doesn't come in the string buffer, since to store access_type
+            if(str[i]=='b'||str[i]=='h'||str[i]=='w'){  //if next character is 'b' or 'h' or 'w'
                 access_type=str[i];                     //set the value in the string buffer as access_type(since the necessary part of the address was already entered into adrstr)
                 break;                                  //since the access type is one char, we can break immediately after receiving the input
             }
