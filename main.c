@@ -76,13 +76,13 @@ int main(void) {                                        //start of main function
         char adrstr[10];                                //declare a string buffer for storing addresses
         int i=0;                                        //a variable to be used in the loop statement is set into 0 in advance
         for(;i<15;i++){                                 //
-            if(str[i]=='\0'||str[i]==' '){adrstr[i]='\0';break;}    //if the character entered into the string buffer is '\0' or a blank, put '\0' in the address buffer at the end and exit the loop
+            if(str[i]=='\0'||str[i]==' '||str[i]=='\t'){adrstr[i]='\0';break;}    //if the character entered into the string buffer is '\0' or '\t' or a blank, put '\0' in the address buffer at the end and exit the loop
             else{                                       //If a general character that does not satisfy the condition of the above, 
                 adrstr[i]=str[i];                       //put the character of the string buffer into the address string buffer
             }
         }
-        for(;i<10;i++){                                 //
-            if(str[i]!=' '){                            //condtion that the ' ' doesn't come in the string buffer, since to store access_type
+        for(;i<15;i++){                                 //
+            if(str[i]=='b'||str[i]=='h'||str[i]=='w'){  //condtion that the ' ' doesn't come in the string buffer, since to store access_type
                 access_type=str[i];                     //set the value in the string buffer as access_type(since the necessary part of the address was already entered into adrstr)
                 break;                                  //since the access type is one char, we can break immediately after receiving the input
             }
