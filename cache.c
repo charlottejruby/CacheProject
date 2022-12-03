@@ -147,18 +147,19 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
 }
 
 int find_entry_index_in_set(int cache_index) {
-    int entry_index=-1;
+    int entry_index=-1;                                             //value to check there is empty space and to return proper index in cache
 
     /* Check if there exists any empty cache space by checking 'valid' */
-    for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){
-        if(cache_array[cache_index][i].valid==0){
-            entry_index=i; break;
+    for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){                         //for each entry in set
+        if(cache_array[cache_index][i].valid==0){                   //if valid bit is 0. 'valid==0' means that pointing space is empty
+            entry_index=i; break;                                   //store index of empty space and break the loop
         }
     }
-    if(entry_index==-1){
-            for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){
-                if(cache_array[cache_index][i].timestamp>entry_index){
-                    entry_index=i;
+    if(entry_index==-1){                                            //if there is no empty space, 'entry_index' is still '-1'
+                                                                    //find entry with lowset timestamp because timestamp continuously increases
+            for(int i=0;i<DEFAULT_CACHE_ASSOC;i++){                 //for each entry in set
+                if(cache_array[cache_index][i].timestamp<entry_index){  //if timestamp of entry is lower than entry_index, 
+                    entry_index=i;                                  //set entry_index to i
                 }
             }
     }
