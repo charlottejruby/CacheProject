@@ -96,7 +96,7 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
     for(int i=0;i<10;i++){                                          //
         if(buf[i]=='\0')break;                                      //if '\0' appears in the buffer value, exit the loop
         address=address*10+buf[i]-'0';                              //put the buffer value into the address, meanwhile multiply 10 to the original address value
-    }                                                               //since the buffer is a char type, '\0' is subtracted
+    }                                                               //since the buffer is a char type, '0' is subtracted
 
 
     int val=-1;                                                     //val variable is the value to be returned by the check_cache_data_hit function

@@ -75,13 +75,13 @@ int main(void) {                                        //start of main function
     while (fgets(str, sizeof(str), ifp) != NULL ) {     //read a string from the input file, and the save the string in str until the entire string has been read
         char adrstr[10];                                //declare a string buffer for storing addresses
         int i=0;                                        //a variable to be used in the loop statement is set into 0 in advance
-        for(;i<15;i++){                                 //
+        for(;i<15;i++){                                 //arbitrary number 15, since it breaks when it encounters a blank or NULL anyway, it only needs to be longer than the length of the given address
             if(str[i]=='\0'||str[i]==' '||str[i]=='\t'){adrstr[i]='\0';break;}    //if the character entered into the string buffer is '\0' or '\t' or a blank, put '\0' in the address buffer at the end and exit the loop
             else{                                       //If a general character that does not satisfy the condition of the above, 
                 adrstr[i]=str[i];                       //put the character of the string buffer into the address string buffer
             }
         }
-        for(;i<15;i++){                                 //
+        for(;i<15;i++){                                 //arbitrary number 15, since it breaks when it encounters a blank or NULL anyway, it only needs to be longer than the length of the given type
             if(str[i]=='b'||str[i]=='h'||str[i]=='w'){  //if next character is 'b' or 'h' or 'w'
                 access_type=str[i];                     //set the value in the string buffer as access_type(since the necessary part of the address was already entered into adrstr)
                 break;                                  //since the access type is one char, we can break immediately after receiving the input
