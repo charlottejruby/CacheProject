@@ -124,7 +124,7 @@ int check_cache_data_hit(void *addr, char type) {                   //a function
                     sprintf(outputData, "%x", cache_array[set][i].data[j]); //store the data in the outputData buffer
                                                                     //beacause data is stored as 'char', hexadecimal number A~F cannot recognized by 10~15.
                     if(outputData[6]>='a'&&outputData[6]<='f')v=outputData[6]-'a'+10;   //if data is 'a~f', subtract ascii value of a.
-                                                                                        //then 'a~f' become '0~5'. add 10 beacuse 'a' means '10' in hexadecimal
+                                                                                        //then 'a~f' become '0~5'. add 10 because 'a' means '10' in hexadecimal
                     else{ v=outputData[6]-'0'; }                    //else means data is '0~9' in char. make it '0~9' in integer by subtracting ascii value of 'char zero'. 
                     v*=16;                                          //since data is a hexadecimal number, so multiply by the power of 16
                     if(outputData[7]>='a'&&outputData[7]<='f')v=v+outputData[7]-'a'+10; //change heximal number 'a~f' to Integer '10~15' 

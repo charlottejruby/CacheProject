@@ -17,7 +17,7 @@
 #define WORD_SIZE_BYTE                   4          //1 word = 4 bytes
 #define DEFAULT_CACHE_SIZE_BYTE          32         //cache size = 32 bytes
 #define DEFAULT_CACHE_BLOCK_SIZE_BYTE    8          //block size = 8 bytes
-#define DEFAULT_CACHE_ASSOC              2          /* This can be changed to 1(for direct mapped cache) or 4(for fully assoc cache) */
+#define DEFAULT_CACHE_ASSOC              4          /* This can be changed to 1(for direct mapped cache) or 4(for fully assoc cache) */
 #define DEFAULT_MEMORY_SIZE_WORD         128        //main memory size is 128 words = 128 * 4 bytes
 #define CACHE_ACCESS_CYCLE               1          //cache access event takes one clock cycle
 #define MEMORY_ACCESS_CYCLE              100        //cache miss event takes a hundred clock cycles

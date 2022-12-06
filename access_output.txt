@@ -8,6 +8,6 @@
 148 	w	0x5689a976
 339 	b	0x45
 -----------------------------------------
-[2-way set associative cache performance]
-Hit ratio = 0.25 (2/8)
-Bandwidth = 0.03 (17/608)
+[Fully associative cache performance]
+Hit ratio = 0.38 (3/8)
+Bandwidth = 0.03 (17/508)
